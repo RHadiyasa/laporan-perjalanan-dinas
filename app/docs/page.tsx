@@ -132,7 +132,7 @@ export default function DocsPage() {
 
               <StepBlock number={1} title="Upload Dokumen">
                 <p>
-                  Buka halaman upload melalui tombol <strong>"Mulai Buat Laporan"</strong> di
+                  Buka halaman upload melalui tombol <strong>&ldquo;Mulai Buat Laporan&rdquo;</strong> di
                   beranda, atau langsung akses <code>/generate</code>.
                 </p>
                 <p className="font-semibold mt-3 mb-1">Cara mengupload file:</p>
@@ -151,13 +151,13 @@ export default function DocsPage() {
                 </InfoBox>
                 <p className="mt-3">
                   Setelah semua dokumen diupload dan data surat tugas diisi, klik{" "}
-                  <strong>"Proses Laporan →"</strong>.
+                  <strong>&ldquo;Proses Laporan →&rdquo;</strong>.
                 </p>
               </StepBlock>
 
               <StepBlock number={2} title="Review Data — Visa Bekerja">
                 <p>
-                  Setelah mengklik "Proses Laporan", Anda akan diarahkan ke halaman Review.
+                  Setelah mengklik &ldquo;Proses Laporan&rdquo;, Anda akan diarahkan ke halaman Review.
                   Visa akan bekerja dalam dua tahap secara berurutan:
                 </p>
 
@@ -211,7 +211,7 @@ export default function DocsPage() {
                 <ul>
                   <li><strong>Mengedit semua field</strong> secara langsung di form review</li>
                   <li>
-                    <strong>Mengklik "Regenerasi Narasi"</strong> untuk membuat narasi
+                    <strong>Mengklik &ldquo;Regenerasi Narasi&rdquo;</strong> untuk membuat narasi
                     ulang jika hasil pertama kurang sesuai — Visa akan menghasilkan
                     versi yang berbeda
                   </li>
@@ -222,7 +222,7 @@ export default function DocsPage() {
                   </li>
                 </ul>
                 <p className="mt-3">
-                  Klik <strong>"Generate Laporan →"</strong> jika semua data sudah benar.
+                  Klik <strong>&ldquo;Generate Laporan →&rdquo;</strong> jika semua data sudah benar.
                 </p>
               </StepBlock>
 
@@ -299,7 +299,7 @@ export default function DocsPage() {
                   <li>Base64 dikirim ke endpoint <code>/api/extract</code> via POST JSON</li>
                   <li>
                     Server mengirim gambar ke <strong>Claude API</strong> dengan prompt:{" "}
-                    <em>"Ekstrak data dari surat undangan ini dan kembalikan sebagai JSON."</em>
+                    <em>&ldquo;Ekstrak data dari surat undangan ini dan kembalikan sebagai JSON.&rdquo;</em>
                   </li>
                   <li>Claude merespons dengan JSON berisi semua field yang diperlukan</li>
                   <li>Data dikembalikan ke browser dan ditampilkan di form review</li>
