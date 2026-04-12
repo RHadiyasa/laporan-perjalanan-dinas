@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useReportStore } from "@/store/useReportStore";
 import { StepIndicator } from "@/components/shared/StepIndicator";
+import { AppBottomBar } from "@/components/shared/AppBottomBar";
 import { generateFileName } from "@/lib/file-naming";
 
 const STEPS = [{ label: "Upload" }, { label: "Review" }, { label: "Unduh" }];
@@ -123,7 +124,8 @@ export default function ResultPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-50 pb-16 sm:pb-0">
+      <AppBottomBar />
       {/* Gradient accent bar */}
       <div className="h-1 w-full bg-gradient-to-r from-teal-500 to-blue-600" />
 

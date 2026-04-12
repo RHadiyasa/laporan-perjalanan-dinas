@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FileDropzone } from "@/components/upload/FileDropzone";
 import { StepIndicator } from "@/components/shared/StepIndicator";
+import { AppBottomBar } from "@/components/shared/AppBottomBar";
 import { useReportStore } from "@/store/useReportStore";
 
 const STEPS = [{ label: "Upload" }, { label: "Review" }, { label: "Unduh" }];
@@ -56,7 +57,7 @@ export default function GeneratePage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-50 pb-16 sm:pb-0">
       {/* Gradient accent bar */}
       <div className="h-1 w-full bg-gradient-to-r from-teal-500 to-blue-600" />
 
@@ -84,7 +85,8 @@ export default function GeneratePage() {
         </div>
       </header>
 
-      <main className="max-w-3xl mx-auto px-4 py-8 space-y-6">
+      <AppBottomBar />
+      <main className="max-w-3xl mx-auto px-4 py-6 sm:py-8 space-y-5">
         <StepIndicator steps={STEPS} current={0} />
 
         <form onSubmit={handleSubmit} noValidate className="space-y-5">
@@ -190,7 +192,7 @@ export default function GeneratePage() {
             <button
               type="submit"
               disabled={navigating}
-              className="inline-flex items-center gap-2 px-7 py-3 text-sm font-bold text-white rounded-xl bg-gradient-to-r from-teal-500 to-blue-600 hover:opacity-90 active:scale-95 transition-all shadow-lg shadow-teal-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 sm:py-3 text-sm font-bold text-white rounded-xl bg-gradient-to-r from-teal-500 to-blue-600 hover:opacity-90 active:scale-95 transition-all shadow-lg shadow-teal-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100"
             >
               {navigating ? (
                 <>
