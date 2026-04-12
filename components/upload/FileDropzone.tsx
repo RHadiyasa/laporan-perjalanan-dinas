@@ -295,9 +295,9 @@ export function FileDropzone({
                 {", "}atau <span className="font-medium text-esdm-gold">Ctrl+V</span>
               </p>
               <p className="text-xs text-slate-400">
-                {maxFiles > 1
+                {description ?? (maxFiles > 1
                   ? `Maks. ${maxFiles} file · ${accept.replace(/application\/pdf/g, "PDF").replace(/image\//g, "").toUpperCase()}`
-                  : accept.replace(/application\/pdf/g, "PDF").replace(/image\//g, "").toUpperCase()}
+                  : accept.replace(/application\/pdf/g, "PDF").replace(/image\//g, "").toUpperCase())}
               </p>
             </>
           )}
