@@ -4,6 +4,9 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "SPD Document Generator",
   description: "Generator Laporan Pelaksanaan Perjalanan Dinas",
+  icons: {
+    icon: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({
