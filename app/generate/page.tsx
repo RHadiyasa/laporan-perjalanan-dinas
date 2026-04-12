@@ -8,7 +8,6 @@ import { StepIndicator } from "@/components/shared/StepIndicator";
 import { useReportStore } from "@/store/useReportStore";
 
 const STEPS = [{ label: "Upload" }, { label: "Review" }, { label: "Unduh" }];
-
 const ACCEPT_IMAGE = "image/jpeg,image/png,image/webp";
 const ACCEPT_IMAGE_PDF = "image/jpeg,image/png,image/webp,application/pdf";
 
@@ -20,12 +19,10 @@ export default function GeneratePage() {
   const [fotoKegiatan, setFotoKegiatan] = useState<File[]>([]);
   const [daftarHadir, setDaftarHadir] = useState<File[]>([]);
   const [materiPresentasi, setMateriPresentasi] = useState<File[]>([]);
-
   const [transcript, setTranscriptLocal] = useState("");
   const [nomorSuratTugas, setNomorSuratTugas] = useState("");
   const [tanggalSuratTugas, setTanggalSuratTugas] = useState("");
   const [unitKerja, setUnitKerja] = useState("");
-
   const [submitted, setSubmitted] = useState(false);
   const [navigating, setNavigating] = useState(false);
 
@@ -47,7 +44,6 @@ export default function GeneratePage() {
     setNavigating(true);
 
     const toUrls = (files: File[]) => files.map((f) => URL.createObjectURL(f));
-
     setFiles({
       undangan: toUrls(undangan)[0] ?? "",
       fotoKegiatan: toUrls(fotoKegiatan),
@@ -61,20 +57,26 @@ export default function GeneratePage() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      {/* Top bar */}
-      <header className="bg-white border-b border-slate-200 px-4 py-4">
+      {/* Gradient accent bar */}
+      <div className="h-1 w-full bg-gradient-to-r from-teal-500 to-blue-600" />
+
+      {/* Header */}
+      <header className="bg-white border-b border-slate-100 px-4 py-4 shadow-sm">
         <div className="max-w-3xl mx-auto flex items-center justify-between">
-          <div>
-            <h1 className="text-lg font-bold text-slate-800">
-              Generator Laporan Perjalanan Dinas
-            </h1>
-            <p className="text-xs text-slate-500 mt-0.5">Kementerian ESDM</p>
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-teal-500 to-blue-600 flex items-center justify-center shadow-sm shadow-teal-200">
+              <span className="text-white text-xs font-bold">V</span>
+            </div>
+            <div>
+              <p className="text-sm font-bold text-slate-800">Generator Laporan SPD</p>
+              <p className="text-xs text-slate-400">Kementerian ESDM</p>
+            </div>
           </div>
           <Link
             href="/"
-            className="text-xs text-slate-500 hover:text-teal-600 transition-colors flex items-center gap-1"
+            className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-teal-600 transition-colors"
           >
-            <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
             </svg>
             Beranda
@@ -82,12 +84,12 @@ export default function GeneratePage() {
         </div>
       </header>
 
-      <main className="max-w-3xl mx-auto px-4 py-8 space-y-8">
+      <main className="max-w-3xl mx-auto px-4 py-8 space-y-6">
         <StepIndicator steps={STEPS} current={0} />
 
-        <form onSubmit={handleSubmit} noValidate className="space-y-8">
+        <form onSubmit={handleSubmit} noValidate className="space-y-5">
           {/* Surat Undangan */}
-          <Section title="Surat Undangan" required>
+          <Card title="Surat Undangan" badge="Wajib" badgeColor="red">
             <FileDropzone
               accept={ACCEPT_IMAGE_PDF}
               maxFiles={1}
@@ -95,13 +97,11 @@ export default function GeneratePage() {
               description="Format JPG / PNG / WEBP / PDF (halaman pertama)"
               onFilesChange={setUndangan}
             />
-            {submitted && undangan.length === 0 && (
-              <FieldError>Surat undangan wajib diupload.</FieldError>
-            )}
-          </Section>
+            {submitted && undangan.length === 0 && <FieldError>Surat undangan wajib diupload.</FieldError>}
+          </Card>
 
           {/* Foto Kegiatan */}
-          <Section title="Foto Kegiatan" required>
+          <Card title="Foto Kegiatan" badge="Wajib" badgeColor="red">
             <FileDropzone
               accept={ACCEPT_IMAGE}
               maxFiles={5}
@@ -109,13 +109,11 @@ export default function GeneratePage() {
               description="Maks. 5 foto · JPG / PNG / WEBP"
               onFilesChange={setFotoKegiatan}
             />
-            {submitted && fotoKegiatan.length === 0 && (
-              <FieldError>Minimal 1 foto kegiatan wajib diupload.</FieldError>
-            )}
-          </Section>
+            {submitted && fotoKegiatan.length === 0 && <FieldError>Minimal 1 foto kegiatan wajib diupload.</FieldError>}
+          </Card>
 
           {/* Daftar Hadir */}
-          <Section title="Daftar Hadir" required>
+          <Card title="Daftar Hadir" badge="Wajib" badgeColor="red">
             <FileDropzone
               accept={ACCEPT_IMAGE}
               maxFiles={2}
@@ -123,16 +121,13 @@ export default function GeneratePage() {
               description="Maks. 2 halaman · JPG / PNG / WEBP"
               onFilesChange={setDaftarHadir}
             />
-            {submitted && daftarHadir.length === 0 && (
-              <FieldError>Daftar hadir wajib diupload.</FieldError>
-            )}
-          </Section>
+            {submitted && daftarHadir.length === 0 && <FieldError>Daftar hadir wajib diupload.</FieldError>}
+          </Card>
 
           {/* Materi Presentasi */}
-          <Section title="Materi Presentasi" optional>
-            <p className="text-xs text-slate-500 mt-1">
-              File ini akan dilampirkan sebagai bagian pendukung laporan pada
-              bagian Hasil Pembahasan.
+          <Card title="Materi Presentasi" badge="Opsional" badgeColor="slate">
+            <p className="text-xs text-slate-500">
+              File ini akan dilampirkan sebagai bagian pendukung laporan pada bagian Hasil Pembahasan.
             </p>
             <FileDropzone
               accept={ACCEPT_IMAGE_PDF}
@@ -141,88 +136,77 @@ export default function GeneratePage() {
               description="Opsional · Maks. 10 halaman · JPG / PNG / WEBP / PDF"
               onFilesChange={setMateriPresentasi}
             />
-          </Section>
+          </Card>
 
           {/* Transcript */}
-          <Section title="Transcript / Catatan Rapat" optional>
-            <p className="text-xs text-slate-500 -mt-1 mb-3">
-              Opsional, namun sangat dianjurkan. Transcript atau catatan rapat
-              membantu AI menghasilkan narasi Hasil Pembahasan yang lebih akurat
-              dan detail.
+          <Card title="Transcript / Catatan Rapat" badge="Opsional" badgeColor="slate">
+            <p className="text-xs text-slate-500 mb-3">
+              Sangat dianjurkan. Transcript membantu Visa menghasilkan narasi Hasil Pembahasan
+              yang lebih akurat dan detail.
             </p>
             <textarea
-              rows={6}
-              placeholder="Tempelkan transcript atau catatan hasil rapat di sini… (bisa berupa notulen singkat, poin-poin hasil rapat, atau transcript rekaman)"
+              rows={5}
+              placeholder="Tempelkan transcript atau catatan hasil rapat di sini…"
               value={transcript}
               onChange={(e) => setTranscriptLocal(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-esdm-gold/30 resize-y transition-colors"
+              className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-400/40 focus:border-teal-400 resize-y transition-colors"
             />
-          </Section>
+          </Card>
 
           {/* Data Surat Tugas */}
-          <Section title="Data Surat Tugas" required>
+          <Card title="Data Surat Tugas" badge="Wajib" badgeColor="red">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Field
-                label="Nomor Surat Tugas"
-                required
-                error={submitted && nomorSuratTugas.trim() === ""}
-              >
+              <FormField label="Nomor Surat Tugas" required error={submitted && nomorSuratTugas.trim() === ""}>
                 <input
                   type="text"
                   placeholder="Contoh: 123/ST/2024"
                   value={nomorSuratTugas}
                   onChange={(e) => setNomorSuratTugas(e.target.value)}
-                  className={inputClass(submitted && nomorSuratTugas.trim() === "")}
+                  className={inputCls(submitted && nomorSuratTugas.trim() === "")}
                 />
-              </Field>
-
-              <Field
-                label="Tanggal Surat Tugas"
-                required
-                error={submitted && tanggalSuratTugas.trim() === ""}
-              >
+              </FormField>
+              <FormField label="Tanggal Surat Tugas" required error={submitted && tanggalSuratTugas.trim() === ""}>
                 <input
                   type="date"
                   value={tanggalSuratTugas}
                   onChange={(e) => setTanggalSuratTugas(e.target.value)}
-                  className={inputClass(submitted && tanggalSuratTugas.trim() === "")}
+                  className={inputCls(submitted && tanggalSuratTugas.trim() === "")}
                 />
-              </Field>
-
-              <Field
-                label="Unit Kerja"
-                required
-                error={submitted && unitKerja.trim() === ""}
-                className="sm:col-span-2"
-              >
+              </FormField>
+              <FormField label="Unit Kerja" required error={submitted && unitKerja.trim() === ""} className="sm:col-span-2">
                 <input
                   type="text"
                   placeholder="Nama unit kerja / direktorat"
                   value={unitKerja}
                   onChange={(e) => setUnitKerja(e.target.value)}
-                  className={inputClass(submitted && unitKerja.trim() === "")}
+                  className={inputCls(submitted && unitKerja.trim() === "")}
                 />
-              </Field>
+              </FormField>
             </div>
-          </Section>
+          </Card>
 
           {/* Submit */}
-          <div className="flex justify-end pt-2">
+          <div className="flex justify-end pt-1">
             <button
               type="submit"
               disabled={navigating}
-              className="flex items-center gap-2 rounded-lg bg-esdm-gold px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-esdm-gold/50 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+              className="inline-flex items-center gap-2 px-7 py-3 text-sm font-bold text-white rounded-xl bg-gradient-to-r from-teal-500 to-blue-600 hover:opacity-90 active:scale-95 transition-all shadow-lg shadow-teal-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100"
             >
               {navigating ? (
                 <>
-                  <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24" aria-hidden>
+                  <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
                   </svg>
                   Memproses…
                 </>
               ) : (
-                "Proses Laporan →"
+                <>
+                  Proses Laporan
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                  </svg>
+                </>
               )}
             </button>
           </div>
@@ -232,39 +216,46 @@ export default function GeneratePage() {
   );
 }
 
-// ── Layout helpers ──────────────────────────────────���─────────────────────────
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
-function Section({
-  title, required, optional, children,
+function Card({
+  title, badge, badgeColor, children,
 }: {
-  title: string; required?: boolean; optional?: boolean; children: React.ReactNode;
+  title: string;
+  badge?: string;
+  badgeColor?: "red" | "slate";
+  children: React.ReactNode;
 }) {
+  const badgeCls =
+    badgeColor === "red"
+      ? "bg-red-50 text-red-500 border border-red-100"
+      : "bg-slate-100 text-slate-400 border border-slate-200";
+
   return (
-    <section className="bg-white rounded-xl border border-slate-200 p-5 space-y-4 shadow-sm">
+    <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm space-y-4">
       <div className="flex items-center gap-2">
-        <h2 className="text-sm font-semibold text-slate-800">{title}</h2>
-        {required && (
-          <span className="text-xs rounded-full bg-red-50 text-red-500 px-2 py-0.5 font-medium">Wajib</span>
-        )}
-        {optional && (
-          <span className="text-xs rounded-full bg-slate-100 text-slate-400 px-2 py-0.5 font-medium">Opsional</span>
+        <h2 className="text-sm font-bold text-slate-800">{title}</h2>
+        {badge && (
+          <span className={`text-xs rounded-full px-2 py-0.5 font-medium ${badgeCls}`}>
+            {badge}
+          </span>
         )}
       </div>
       {children}
-    </section>
+    </div>
   );
 }
 
-function Field({
+function FormField({
   label, required, error, className, children,
 }: {
   label: string; required?: boolean; error?: boolean; className?: string; children: React.ReactNode;
 }) {
   return (
     <div className={className}>
-      <label className="block text-xs font-medium text-slate-600 mb-1.5">
+      <label className="block text-xs font-semibold text-slate-600 mb-1.5">
         {label}
-        {required && <span className="text-red-500 ml-0.5">*</span>}
+        {required && <span className="text-red-400 ml-0.5">*</span>}
       </label>
       {children}
       {error && <FieldError>{label} wajib diisi.</FieldError>}
@@ -276,12 +267,12 @@ function FieldError({ children }: { children: React.ReactNode }) {
   return <p className="mt-1 text-xs text-red-500">{children}</p>;
 }
 
-function inputClass(hasError: boolean) {
+function inputCls(hasError: boolean) {
   return [
-    "w-full rounded-lg border px-3 py-2 text-sm text-slate-800 placeholder-slate-400",
+    "w-full rounded-xl border px-3 py-2.5 text-sm text-slate-800 placeholder-slate-400",
     "focus:outline-none focus:ring-2 transition-colors",
     hasError
-      ? "border-red-400 focus:ring-red-300"
-      : "border-slate-300 focus:ring-esdm-gold/30",
+      ? "border-red-300 focus:ring-red-200"
+      : "border-slate-200 focus:ring-teal-400/40 focus:border-teal-400",
   ].join(" ");
 }

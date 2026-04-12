@@ -20,41 +20,41 @@ export function StepIndicator({ steps, current }: StepIndicatorProps) {
 
           return (
             <li key={i} className={`flex items-center ${isLast ? "" : "flex-1"}`}>
-              {/* Circle + label */}
               <div className="flex flex-col items-center gap-1.5">
                 <div
                   className={[
-                    "w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold border-2 transition-colors",
+                    "w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border-2 transition-all",
                     done
-                      ? "bg-esdm-gold border-esdm-gold text-white"
+                      ? "bg-gradient-to-br from-teal-500 to-blue-600 border-transparent text-white shadow-sm shadow-teal-200"
                       : active
-                      ? "bg-white border-esdm-gold text-esdm-gold"
-                      : "bg-white border-slate-300 text-slate-400",
+                      ? "bg-white border-teal-500 text-teal-600"
+                      : "bg-white border-slate-200 text-slate-300",
                   ].join(" ")}
                   aria-current={active ? "step" : undefined}
                 >
-                  {done ? (
-                    <CheckIcon />
-                  ) : (
-                    <span>{i + 1}</span>
-                  )}
+                  {done ? <CheckIcon /> : <span>{i + 1}</span>}
                 </div>
                 <span
                   className={[
-                    "text-xs font-medium whitespace-nowrap",
-                    active ? "text-esdm-gold" : done ? "text-slate-600" : "text-slate-400",
+                    "text-xs font-semibold whitespace-nowrap",
+                    active
+                      ? "text-teal-600"
+                      : done
+                      ? "text-slate-500"
+                      : "text-slate-300",
                   ].join(" ")}
                 >
                   {step.label}
                 </span>
               </div>
 
-              {/* Connector line */}
               {!isLast && (
                 <div
                   className={[
-                    "flex-1 h-0.5 mx-3 mb-5 transition-colors",
-                    done ? "bg-esdm-gold" : "bg-slate-200",
+                    "flex-1 h-0.5 mx-3 mb-5 rounded-full transition-all",
+                    done
+                      ? "bg-gradient-to-r from-teal-400 to-blue-500"
+                      : "bg-slate-100",
                   ].join(" ")}
                 />
               )}
@@ -68,14 +68,7 @@ export function StepIndicator({ steps, current }: StepIndicatorProps) {
 
 function CheckIcon() {
   return (
-    <svg
-      className="w-4 h-4"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={2.5}
-      viewBox="0 0 24 24"
-      aria-hidden
-    >
+    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24" aria-hidden>
       <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
     </svg>
   );

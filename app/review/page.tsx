@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useReportStore } from "@/store/useReportStore";
 import { StepIndicator } from "@/components/shared/StepIndicator";
 import { MetadataEditor } from "@/components/review/MetadataEditor";
@@ -10,7 +11,6 @@ import type { ExtractedData, GeneratedNarrative } from "@/types/report";
 
 const STEPS = [{ label: "Upload" }, { label: "Review" }, { label: "Unduh" }];
 
-// Convert a blob/object URL → base64 string + mimeType
 async function blobUrlToBase64(
   url: string
 ): Promise<{ base64: string; mimeType: string }> {
@@ -20,7 +20,6 @@ async function blobUrlToBase64(
     const reader = new FileReader();
     reader.onload = () => {
       const dataUrl = reader.result as string;
-      // dataUrl = "data:<mime>;base64,<data>"
       const [header, data] = dataUrl.split(",");
       const mimeType = header.replace("data:", "").replace(";base64", "");
       resolve({ base64: data, mimeType });
@@ -30,18 +29,12 @@ async function blobUrlToBase64(
   });
 }
 
-type Phase =
-  | "idle"
-  | "extracting"
-  | "generating"
-  | "done"
-  | "error";
+type Phase = "idle" | "extracting" | "generating" | "done" | "error";
 
 export default function ReviewPage() {
   const router = useRouter();
   const store = useReportStore();
 
-  // Local editable copies — initialised from store once AI results arrive
   const [localExtracted, setLocalExtracted] = useState<ExtractedData | null>(
     store.extracted
   );
@@ -56,17 +49,14 @@ export default function ReviewPage() {
   const [transcriptOpen, setTranscriptOpen] = useState(false);
   const [generateError, setGenerateError] = useState<string | null>(null);
 
-  // Run AI pipeline only once on mount
   const didRun = useRef(false);
 
   useEffect(() => {
-    // Guard: step 1 must be complete — undangan + transcript are the key proxies
     if (!store.files.undangan) {
       router.replace("/generate");
       return;
     }
 
-    // If we already have results (e.g. user navigated back), skip API calls
     if (store.extracted && store.narrative) {
       setLocalExtracted(store.extracted);
       setLocalNarrative(store.narrative);
@@ -86,7 +76,6 @@ export default function ReviewPage() {
     setErrorMsg(null);
 
     try {
-      // Step A: extract invitation data via Vision
       const { base64, mimeType } = await blobUrlToBase64(store.files.undangan);
 
       const extractRes = await fetch("/api/extract", {
@@ -104,7 +93,6 @@ export default function ReviewPage() {
       store.setExtracted(extracted);
       setLocalExtracted(extracted);
 
-      // Step B: generate narrative
       setPhase("generating");
 
       const narrativeRes = await fetch("/api/generate-narrative", {
@@ -165,7 +153,6 @@ export default function ReviewPage() {
   function handleGenerate() {
     if (!localExtracted || !localNarrative) return;
 
-    // Validate required narrative fields before proceeding
     const missing: string[] = [];
     if (!localExtracted.perihal.trim()) missing.push("Perihal");
     if (!localExtracted.tempat.trim()) missing.push("Tempat Kegiatan");
@@ -180,7 +167,6 @@ export default function ReviewPage() {
     }
 
     setGenerateError(null);
-    // Persist any manual edits back to the store before navigating
     store.setExtracted(localExtracted);
     store.setNarrative(localNarrative);
     router.push("/result");
@@ -190,73 +176,95 @@ export default function ReviewPage() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      {/* Top bar */}
-      <header className="bg-white border-b border-slate-200 px-4 py-4">
-        <div className="max-w-6xl mx-auto">
-          <h1 className="text-lg font-bold text-slate-800">
-            Generator Laporan Perjalanan Dinas
-          </h1>
-          <p className="text-xs text-slate-500 mt-0.5">Kementerian ESDM</p>
+      {/* Gradient accent bar */}
+      <div className="h-1 w-full bg-gradient-to-r from-teal-500 to-blue-600" />
+
+      {/* Header */}
+      <header className="bg-white border-b border-slate-100 px-4 py-4 shadow-sm">
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-teal-500 to-blue-600 flex items-center justify-center shadow-sm shadow-teal-200">
+              <span className="text-white text-xs font-bold">V</span>
+            </div>
+            <div>
+              <p className="text-sm font-bold text-slate-800">Generator Laporan SPD</p>
+              <p className="text-xs text-slate-400">Kementerian ESDM</p>
+            </div>
+          </div>
+          <Link
+            href="/generate"
+            className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-teal-600 transition-colors"
+          >
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+            </svg>
+            Kembali ke Upload
+          </Link>
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-4 py-8 space-y-8">
+      <main className="max-w-6xl mx-auto px-4 py-8 space-y-6">
         <StepIndicator steps={STEPS} current={1} />
 
-        {/* ── Loading states ── */}
+        {/* Loading states */}
         {(phase === "extracting" || phase === "generating") && (
-          <StatusCard>
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm px-6 py-5 flex items-center gap-4">
             <Spinner />
             <div>
-              <p className="font-medium text-slate-700">
+              <p className="text-sm font-semibold text-slate-700">
                 {phase === "extracting"
                   ? "Membaca surat undangan…"
                   : "Menghasilkan narasi laporan…"}
               </p>
-              <p className="text-xs text-slate-500 mt-0.5">
+              <p className="text-xs text-slate-400 mt-0.5">
                 {phase === "extracting"
-                  ? "Visa sedang menganalisis dokumen."
+                  ? "Visa sedang menganalisis dokumen dengan Vision AI."
                   : "Visa sedang menulis narasi formal dalam Bahasa Indonesia."}
               </p>
             </div>
-          </StatusCard>
+          </div>
         )}
 
-        {/* ── Error state ── */}
+        {/* Error state */}
         {phase === "error" && errorMsg && (
-          <div className="rounded-xl border border-red-200 bg-red-50 p-4 space-y-3">
-            <p className="text-sm font-medium text-red-700">
-              Terjadi kesalahan
-            </p>
-            <p className="text-sm text-red-600">{errorMsg}</p>
+          <div className="bg-white rounded-2xl border border-red-100 shadow-sm p-6 space-y-4">
+            <div className="flex items-start gap-3">
+              <div className="flex-shrink-0 w-9 h-9 rounded-full bg-red-50 flex items-center justify-center mt-0.5">
+                <svg className="w-4.5 h-4.5 text-red-500" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-slate-800">Terjadi kesalahan</p>
+                <p className="text-sm text-red-600 mt-1">{errorMsg}</p>
+              </div>
+            </div>
             <button
               onClick={() => {
                 didRun.current = false;
                 void runPipeline();
               }}
-              className="rounded-md bg-red-600 px-4 py-2 text-xs font-semibold text-white hover:bg-red-700 transition-colors"
+              className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-teal-500 to-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90 transition-opacity shadow-sm shadow-teal-200"
             >
               Coba Lagi
             </button>
           </div>
         )}
 
-        {/* ── Inline error for regenerate ── */}
+        {/* Inline error for regenerate */}
         {isReady && errorMsg && (
-          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3">
+          <div className="rounded-xl border border-red-100 bg-red-50 px-4 py-3">
             <p className="text-sm text-red-600">{errorMsg}</p>
           </div>
         )}
 
-        {/* ── Main two-column editor ── */}
+        {/* Main two-column editor */}
         {isReady && (
           <>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 items-start">
               {/* Left: metadata */}
-              <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
-                <h2 className="text-sm font-semibold text-slate-800 mb-4">
-                  Data Kegiatan
-                </h2>
+              <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+                <h2 className="text-sm font-bold text-slate-800 mb-4">Data Kegiatan</h2>
                 <MetadataEditor
                   extracted={localExtracted}
                   nomorSuratTugas={store.nomorSuratTugas}
@@ -269,7 +277,7 @@ export default function ReviewPage() {
               </div>
 
               {/* Right: narrative */}
-              <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
+              <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
                 <NarrativeEditor
                   narrative={localNarrative}
                   isRegenerating={isRegenerating}
@@ -279,26 +287,26 @@ export default function ReviewPage() {
               </div>
             </div>
 
-            {/* ── Transcript reference (collapsible) ── */}
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            {/* Transcript reference (collapsible) */}
+            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
               <button
                 type="button"
                 onClick={() => setTranscriptOpen((o) => !o)}
-                className="w-full flex items-center justify-between px-5 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+                className="w-full flex items-center justify-between px-5 py-3.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
               >
-                <span>Transcript / Catatan Rapat (referensi)</span>
+                <span>Transcript / Catatan Rapat <span className="text-xs text-slate-400 font-normal">(referensi)</span></span>
                 <ChevronIcon open={transcriptOpen} />
               </button>
               {transcriptOpen && (
                 <div className="px-5 pb-5">
-                  <pre className="whitespace-pre-wrap text-xs text-slate-600 bg-slate-50 rounded-lg p-4 max-h-64 overflow-y-auto">
+                  <pre className="whitespace-pre-wrap text-xs text-slate-600 bg-slate-50 rounded-xl p-4 max-h-64 overflow-y-auto border border-slate-100">
                     {store.transcript || "(kosong)"}
                   </pre>
                 </div>
               )}
             </div>
 
-            {/* ── Generate button ── */}
+            {/* Generate button */}
             <div className="flex flex-col items-end gap-2 pb-4">
               {generateError && (
                 <p className="text-xs text-red-500 text-right max-w-md">{generateError}</p>
@@ -307,9 +315,24 @@ export default function ReviewPage() {
                 type="button"
                 onClick={handleGenerate}
                 disabled={isRegenerating}
-                className="rounded-lg bg-esdm-gold px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-esdm-gold/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="inline-flex items-center gap-2 px-7 py-3 text-sm font-bold text-white rounded-xl bg-gradient-to-r from-teal-500 to-blue-600 hover:opacity-90 active:scale-95 transition-all shadow-lg shadow-teal-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100"
               >
-                Generate Laporan →
+                {isRegenerating ? (
+                  <>
+                    <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                    </svg>
+                    Memproses…
+                  </>
+                ) : (
+                  <>
+                    Generate Laporan
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                    </svg>
+                  </>
+                )}
               </button>
             </div>
           </>
@@ -319,37 +342,18 @@ export default function ReviewPage() {
   );
 }
 
-// ── Small helpers ─────────────────────────────────────────────────────────────
-
-function StatusCard({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="flex items-center gap-4 rounded-xl border border-slate-200 bg-white px-5 py-4 shadow-sm">
-      {children}
-    </div>
-  );
-}
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
 function Spinner() {
   return (
     <svg
-      className="w-6 h-6 animate-spin text-esdm-gold flex-shrink-0"
+      className="w-6 h-6 animate-spin text-teal-500 flex-shrink-0"
       fill="none"
       viewBox="0 0 24 24"
       aria-hidden
     >
-      <circle
-        className="opacity-25"
-        cx="12"
-        cy="12"
-        r="10"
-        stroke="currentColor"
-        strokeWidth="4"
-      />
-      <path
-        className="opacity-75"
-        fill="currentColor"
-        d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-      />
+      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
     </svg>
   );
 }
