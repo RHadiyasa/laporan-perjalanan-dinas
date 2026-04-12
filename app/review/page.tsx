@@ -61,8 +61,8 @@ export default function ReviewPage() {
 
   useEffect(() => {
     // Guard: step 1 must be complete — undangan + transcript are the key proxies
-    if (!store.files.undangan || !store.transcript) {
-      router.replace("/");
+    if (!store.files.undangan) {
+      router.replace("/generate");
       return;
     }
 

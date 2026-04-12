@@ -36,7 +36,7 @@ export default function ResultPage() {
   useEffect(() => {
     // Guard: missing required store data → send back to step 1
     if (!store.extracted || !store.narrative || !store.files.undangan) {
-      router.replace("/");
+      router.replace("/generate");
       return;
     }
 
