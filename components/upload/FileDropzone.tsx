@@ -88,6 +88,41 @@ async function pdfToImageFiles(
   return results;
 }
 
+// ── Image resize ─────────────────────────────────────────────────────────────
+
+const MAX_DIMENSION = 1024;
+
+function resizeImageFile(file: File): Promise<File> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const objectUrl = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(objectUrl);
+      const { width, height } = img;
+      if (width <= MAX_DIMENSION && height <= MAX_DIMENSION) {
+        resolve(file);
+        return;
+      }
+      const scale = MAX_DIMENSION / Math.max(width, height);
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.round(width * scale);
+      canvas.height = Math.round(height * scale);
+      const ctx = canvas.getContext("2d")!;
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) { reject(new Error("Gagal mengompres gambar.")); return; }
+          resolve(new File([blob], file.name.replace(/\.[^.]+$/, ".jpg"), { type: "image/jpeg" }));
+        },
+        "image/jpeg",
+        0.88
+      );
+    };
+    img.onerror = () => { URL.revokeObjectURL(objectUrl); reject(new Error("Gagal membaca gambar.")); };
+    img.src = objectUrl;
+  });
+}
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function isImageMime(mime: string) { return mime.startsWith("image/"); }
@@ -173,8 +208,9 @@ export function FileDropzone({
             setError(`Gagal membaca PDF: ${err instanceof Error ? err.message : "error tidak diketahui"}`);
           }
         } else if (isImageMime(file.type) && acceptsImages(accept)) {
-          const previewUrl = URL.createObjectURL(file);
-          processed.push({ file, previewUrl, label: file.name });
+          const resized = await resizeImageFile(file);
+          const previewUrl = URL.createObjectURL(resized);
+          processed.push({ file: resized, previewUrl, label: file.name });
         } else {
           processed.push({ file, previewUrl: null, label: file.name });
         }
